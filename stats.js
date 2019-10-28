@@ -68,23 +68,10 @@ function printBasicStats(list) {
 
 
 function printDateStats(list) {
-	const getEndDate = () => {
-		const lastAdded = list[list.length - 1].date_added;
-
-		const sortedByRead = new Array(...list.filter(i => i.date_read !== null));
-		if (sortedByRead.length === 0)
-			return lastAdded;
-
-		sortedByRead.sort((a, b) => a.date_read - b.date_read);
-
-		const lastRead = sortedByRead[sortedByRead.length - 1].date_read;
-		return lastRead > lastAdded ? lastRead : lastAdded;
-	};
-
 	const printMonthStats = (year, month) => {
 		const firstDay = new Date(year, month - 1, 1);
 		const lastDay = new Date(year, month, 1);
-		const sublistAdded = list.filter(item => firstDay <= item.date_added && item.date_added < lastDay);
+		const sublistAdded = list.filter(item => firstDay <= item.date_updated && item.date_updated < lastDay);
 		const sublistRead = list.filter(item => firstDay <= item.date_read && item.date_read < lastDay);
 
 		const countAdded = (fn) => sublistAdded.filter(fn).length;
@@ -103,7 +90,7 @@ function printDateStats(list) {
 	}
 
 	const dateFrom = list[0].date_added;
-	const dateTo = getEndDate();
+	const dateTo = list[list.length - 1].date_updated;
 	console.log('Date range: ' +
 		dateFrom.toISOString().substring(0, 10) + ' - ' +
 		dateTo.toISOString().substring(0, 10)
