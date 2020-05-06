@@ -26,6 +26,7 @@ console.log();
 
 printStats(pocket);
 
+/*
 console.log();
 
 pocket.get({
@@ -64,3 +65,4 @@ pocket.get({
 		} = resp;
 	}
 });
+*/

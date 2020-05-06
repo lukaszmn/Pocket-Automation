@@ -1,7 +1,7 @@
 function printStats(pocket) {
 
 	pocket.get({
-		// count: 600,
+		count: 100000,
 		state: 'all',
 		detailType: 'complete',
 	}, function(err, resp) {
@@ -89,7 +89,7 @@ function printDateStats(list) {
 		);
 	}
 
-	const dateFrom = list[0].date_added;
+	const dateFrom = list[0].date_added; 
 	const dateTo = list[list.length - 1].date_updated;
 	console.log('Date range: ' +
 		dateFrom.toISOString().substring(0, 10) + ' - ' +
@@ -109,7 +109,7 @@ function printDateStats(list) {
 			++year;
 		}
 	}
-
+    
 }
 
 
