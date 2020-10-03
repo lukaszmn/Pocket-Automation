@@ -1,4 +1,4 @@
-const loadPocket = require('./pocket').loadPocket;
+const { loadPocket } = require('./pocket');
 
 async function printStats(pocket) {
 	const list = await loadPocket(pocket, 100000, false);

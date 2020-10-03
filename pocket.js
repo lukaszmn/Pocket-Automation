@@ -1,5 +1,9 @@
+const ora = require('ora');
+
 async function loadPocket(pocket, count, sortNewestFirst) {
 	return new Promise((resolve, reject) => {
+
+		const spinner = ora('Loading').start();
 
 		pocket.get({
 			count,
@@ -7,8 +11,10 @@ async function loadPocket(pocket, count, sortNewestFirst) {
 			detailType: 'complete',
 		}, function(err, resp) {
 			if (err) {
+				spinner.fail();
 				reject(err);
 			} else {
+				spinner.succeed();
 				const list = convertToList(resp, sortNewestFirst);
 				resolve(list);
 			}
