@@ -1,6 +1,7 @@
 const GetPocket = require('node-getpocket');
 
 const printStats = require('./stats').printStats;
+const readPocket = require('./read').readPocket;
 
 const config = require('./pocket.json');
 
@@ -19,12 +20,18 @@ Add pocket.json file:
 }
 */
 
-var pocket = new GetPocket(config);
+const pocket = new GetPocket(config);
 
-
+const args = process.argv.slice(2);
 console.log();
 
-printStats(pocket);
+if (args.includes('--stats')) {
+	printStats(pocket);
+} else if (args.includes('--read')) {
+	readPocket(pocket);
+} else {
+	console.log('Use parameter: --stats / --read')
+}
 
 /*
 console.log();

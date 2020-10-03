@@ -1,44 +1,15 @@
-function printStats(pocket) {
+const loadPocket = require('./pocket').loadPocket;
 
-	pocket.get({
-		count: 100000,
-		state: 'all',
-		detailType: 'complete',
-	}, function(err, resp) {
-		if (err) {
-			console.error(err);
-		} else {
-			printStatsData(resp);
-		}
-	});
-
+async function printStats(pocket) {
+	const list = await loadPocket(pocket, 100000, false);
+	printStatsData(list);
 }
 
 
-function printStatsData(resp) {
-	const list = convertToList(resp);
-
+function printStatsData(list) {
 	console.log('N = Normal, A = Archived, D = Deleted');
 	printDateStats(list);
 	printBasicStats(list);
-}
-
-
-function convertToList(resp) {
-	const list = [];
-
-	for (const id in resp.list) {
-		const item = resp.list[id];
-		item.date_added = new Date(item.time_added * 1000);
-		item.date_updated = new Date(item.time_updated * 1000);
-		item.date_read = item.time_read === '0' ? null : new Date(item.time_read * 1000);
-		list.push(item);
-	}
-
-	// sort from oldest to newest
-	list.sort((a, b) => a.time_added - b.time_added);
-
-	return list;
 }
 
 
