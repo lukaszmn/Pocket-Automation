@@ -1,3 +1,4 @@
+const arg = require('arg');
 const GetPocket = require('node-getpocket');
 
 const printStats = require('./stats').printStats;
@@ -20,56 +21,37 @@ Add pocket.json file:
 }
 */
 
+const args = arg({
+	'--stats': Boolean,
+	'--read': Boolean,
+	'--app': String,
+	'--arg': String,
+});
+
 const pocket = new GetPocket(config);
 
-const args = process.argv.slice(2);
 console.log();
 
-if (args.includes('--stats')) {
+if (args['--stats']) {
 	printStats(pocket);
-} else if (args.includes('--read')) {
-	readPocket(pocket);
-} else {
-	console.log('Use parameter: --stats / --read')
-}
-
-/*
-console.log();
-
-pocket.get({
-	count: 1,
-	state: 'all',
-	detailType: 'complete',
-	sort: 'newest',
-}, function(err, resp) {
-	if (err) {
-		console.error(err);
-	} else {
-		// console.log(resp);
-		const list = [];
-		for (const id in resp.list) {
-			const item = resp.list[id];
-			list.push(item);
-		}
-
-		list
-			// .filter(item => item.time_read > 0 && item.tags)
-			.forEach(item => console.log(item));
-
-		console.log(list[0].tags);
-		const {
-			item_id,
-			time_added,
-			time_read,
-			time_updated,
-			sort_id,
-			resolved_title,
-			resolved_url,
-			given_title,
-			is_article,
-			status, // 0 = normal, 1 = archived, 2 = deleted
-			tags,
-		} = resp;
+} else if (args['--read']) {
+	let app = undefined;
+	if (args['--app']) {
+		if (args['--arg'])
+			app = { app: [args['--app'], args['--arg'].trim().replace(/'/g, '"')] };
+		else
+			app = { app: args['--app'] };
 	}
-});
-*/
+	console.log(app);
+	readPocket(pocket, app);
+} else {
+	console.log(`Usage:
+	npm run stats
+	npm run read [-- --app="chrome" [--arg=" --incognito"]]
+
+Alternatively:
+	node index.js -- --stats
+
+Note: add a space inside --arg, otherwise it may be parsed as another argument.
+For convenience, single quotes will be replaced with double quotes.`);
+}
