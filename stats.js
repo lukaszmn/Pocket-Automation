@@ -1,7 +1,15 @@
 const { loadPocket } = require('./pocket');
 
+const ALL_ITEMS_COUNT = 100000;
+
 async function printStats(pocket) {
-	const list = await loadPocket(pocket, 100000, false);
+	const list = await loadPocket(pocket, {
+		count: ALL_ITEMS_COUNT,
+		offset: 0,
+		getUnread: true,
+		getArchived: true,
+		sortNewestFirst: false,
+	});
 	printStatsData(list);
 }
 

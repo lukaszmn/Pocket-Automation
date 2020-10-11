@@ -10,7 +10,7 @@ const config = require('./pocket.json');
 /* authorization:
 npm i express
 npm i stdio
-node_modules\node-getpocket\authorise.js --consumerkey "..."
+node .\node_modules\node-getpocket\authorise.js --consumerkey ...
 
 DOCS: https://github.com/vicchi/node-getpocket
 
@@ -38,20 +38,23 @@ if (args['--stats']) {
 	let app = undefined;
 	if (args['--app']) {
 		if (args['--arg'])
-			app = { app: [args['--app'], args['--arg'].trim().replace(/'/g, '"')] };
+			app = { app: [args['--app'], args['--arg'].trim()] };
 		else
 			app = { app: args['--app'] };
 	}
-	console.log(app);
+	// app = { app: ['C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+	// 	"--user-data-dir=P:\\Chrome\\User\ Data"
+	// ]};
 	readPocket(pocket, app);
 } else {
 	console.log(`Usage:
 	npm run stats
-	npm run read [-- --app="chrome" [--arg=" --incognito"]]
+	npm run read [--app="chrome" [--arg=" --incognito"]]
 
 Alternatively:
-	node index.js -- --stats
+	node index.js --stats
 
 Note: add a space inside --arg, otherwise it may be parsed as another argument.
-For convenience, single quotes will be replaced with double quotes.`);
+Complex example:
+node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User\` Data\"`);
 }

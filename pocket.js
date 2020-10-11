@@ -1,13 +1,27 @@
 const ora = require('ora');
 
-async function loadPocket(pocket, count, sortNewestFirst) {
+/**
+ * @param {object} options
+ * @param {number} options.count
+ * @param {number} options.offset
+ * @param {boolean} options.getArchived
+ * @param {boolean} options.getUnread
+ * @param {boolean} options.sortNewestFirst
+ */
+async function loadPocket(pocket, options) {
+	const state =
+		options.getArchived && options.getUnread ? 'all' :
+		options.getArchived ? 'archive' :
+		options.getUnread ? 'unread' : '';
+
 	return new Promise((resolve, reject) => {
 
 		const spinner = ora('Loading').start();
 
 		pocket.get({
-			count,
-			state: 'all',
+			count: options.count,
+			offset: options.offset,
+			state: state,
 			detailType: 'complete',
 		}, function(err, resp) {
 			if (err) {
@@ -15,7 +29,7 @@ async function loadPocket(pocket, count, sortNewestFirst) {
 				reject(err);
 			} else {
 				spinner.succeed();
-				const list = convertToList(resp, sortNewestFirst);
+				const list = convertToList(resp, options.sortNewestFirst);
 				resolve(list);
 			}
 		});

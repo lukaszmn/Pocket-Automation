@@ -3,22 +3,51 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const open = require('open');
 const clipboardy = require('clipboardy');
+const fs = require('fs').promises;
+
+const ITEMS_AT_ONCE = 10;
+const SKIP_TAGS = ['read-tel'];
+const KB_PATH = 'kb.txt';
 
 async function readPocket(pocket, app) {
-	const list = await loadPocket(pocket, 10, true);
+	const list = [];
+	let offset = 0;
+	while (list.length < ITEMS_AT_ONCE) {
+		const rawPartialList = await loadPocket(pocket, {
+			count: ITEMS_AT_ONCE,
+			offset,
+			getUnread: true,
+			getArchived: false,
+			sortNewestFirst: true,
+		});
 
-	const list2 = list.map(convertItem).filter(item => item.active);
+		if (rawPartialList.length === 0)
+			break;
+
+		const cleanedPartialList = rawPartialList.map(convertItem)
+			.filter(item => item.active)
+			.filter(item => !SKIP_TAGS.some(tag => item.tagsArr.includes(tag)));
+
+		const remainingCount = Math.min(cleanedPartialList.length, ITEMS_AT_ONCE - list.length);
+		const remainingItems = cleanedPartialList.slice(0, remainingCount);
+		list.push(...remainingItems);
+		offset += ITEMS_AT_ONCE;
+	}
+
+	if (list.length === ITEMS_AT_ONCE)
+		console.log(`Processing the first ${ITEMS_AT_ONCE} items.`);
+	else
+		console.log(`Processing the final ${list.length} items (requested ${ITEMS_AT_ONCE}).`);
 
 	let index = 0;
 	let continue_ = true;
 	while (continue_) {
-		const item = list2[index];
-		const itemNumber = `${index + 1} / ${list2.length}`;
+		const item = list[index];
+		const itemNumber = `${index + 1} / ${list.length}`;
 		const action = await showItem(item, itemNumber);
-		[ continue_, index ] = await process({action, item, index, length: list2.length, app});
+		[ continue_, index ] = await process({action, item, index, length: list.length, app, pocket});
 	}
 }
-
 
 function convertItem(item) {
 	if (item.status == 0) item.status = 'Normal';
@@ -30,7 +59,7 @@ function convertItem(item) {
 		url: item.resolved_url,
 		status: item.status,
 		title: item.resolved_title,
-		tags: Object.keys(item.tags),
+		tags: Object.keys(item.tags || {}),
 		date: item.date_added,
 	};
 
@@ -41,6 +70,7 @@ function convertItem(item) {
 		title: short.title,
 		date: short.date.toISOString().substring(0, 7),
 		tags: short.tags.join('  '),
+		tagsArr: short.tags,
 	};
 
 	return display;
@@ -61,6 +91,8 @@ ${chalk.yellow(item.tags)}
 			{name: Action.CopyUrl, key: 'c'},
 			{name: Action.Open, key: 'o'},
 			{name: Action.OpenArchive, key: 'u'},
+			{name: Action.KBArchive, key: 'k'},
+			{name: Action.OpenKBArchive, key: 'b'},
 			{name: Action.Archive, key: 'a'},
 			new inquirer.Separator(),
 			{name: Action.Skip, key: 's'},
@@ -70,7 +102,7 @@ ${chalk.yellow(item.tags)}
 	return answers.choice;
 }
 
-async function process({action, item, index, length, app}) {
+async function process({action, item, index, length, app, pocket}) {
 	const next = () => {
 		++index;
 		if (index >= length) {
@@ -79,16 +111,34 @@ async function process({action, item, index, length, app}) {
 		}
 		return [ true, index ];
 	};
-console.log(app);
+
 	const openUrl = () => open(item.url, app);
 
-	const archive = () => {
-		// TODO
+	const archive = async () => {
+		return new Promise((resolve, reject) => {
+			const callback = (err, res) => {
+				if (err) reject(err);
+				resolve(res);
+			};
+			pocket.archive({item_id: item.id}, callback);
+		});
 	};
+
+	const kb = async () => {
+		const answer = await inquirer.prompt([{
+			type: 'input',
+			name: 'tags',
+			message: 'Provide KB tags:',
+		}]);
+		const s = `${answer.tags}\r\n\t${item.url}\r\n\r\n`;
+		await fs.appendFile(KB_PATH, s, 'utf-8');
+		console.log('The entry was added to the clipboard and to the "kb.txt" file.');
+		await clipboardy.write(s);
+	}
 
 	switch (action) {
 		case Action.Archive:
-			archive();
+			await archive();
 			return next();
 
 		case Action.CopyUrl:
@@ -101,7 +151,18 @@ console.log(app);
 
 		case Action.OpenArchive:
 			openUrl();
-			archive();
+			await archive();
+			return next();
+
+		case Action.KBArchive:
+			await kb();
+			await archive();
+			return next();
+
+		case Action.OpenKBArchive:
+			openUrl();
+			await kb();
+			await archive();
 			return next();
 
 		case Action.Quit:
@@ -116,6 +177,8 @@ const Action = {
 	CopyUrl: 'Copy URL',
 	Open: 'Open',
 	OpenArchive: 'Open & Archive',
+	KBArchive: 'KB & Archive',
+	OpenKBArchive: 'Open, KB & Archive',
 	Archive: 'Archive',
 	Skip: 'Skip',
 	Quit: 'Quit',
