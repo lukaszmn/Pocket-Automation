@@ -1,14 +1,13 @@
 {
   "name": "pocket-automation",
   "version": "1.0.0",
-  "description": "",
+  "description": "Pocket automation",
   "main": "index.js",
   "scripts": {
     "stats": "node index.js --stats",
-    "read": "node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User` Data\"",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "read": "node index.js --read"
   },
-  "author": "",
+  "author": "Lukasz Nojek",
   "license": "ISC",
   "dependencies": {
     "arg": "^4.1.3",

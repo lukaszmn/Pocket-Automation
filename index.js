@@ -1,8 +1,8 @@
 const arg = require('arg');
 const GetPocket = require('node-getpocket');
 
-const printStats = require('./stats').printStats;
-const readPocket = require('./read').readPocket;
+const { printStats } = require('./stats');
+const { readPocket } = require('./read');
 
 const config = require('./pocket.json');
 
@@ -26,6 +26,8 @@ const args = arg({
 	'--read': Boolean,
 	'--app': String,
 	'--arg': String,
+	'--batch': Number,
+	'--skip-tag': [String],
 });
 
 const pocket = new GetPocket(config);
@@ -33,8 +35,11 @@ const pocket = new GetPocket(config);
 console.log();
 
 if (args['--stats']) {
+
 	printStats(pocket);
+
 } else if (args['--read']) {
+
 	let app = undefined;
 	if (args['--app']) {
 		if (args['--arg'])
@@ -42,10 +47,14 @@ if (args['--stats']) {
 		else
 			app = { app: args['--app'] };
 	}
-	// app = { app: ['C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-	// 	"--user-data-dir=P:\\Chrome\\User\ Data"
-	// ]};
-	readPocket(pocket, app);
+
+	const options = {
+		batch: args['--batch'],
+		skipTags: args['--skip-tag'],
+	};
+
+	readPocket(pocket, options, app);
+
 } else {
 	console.log(`Usage:
 	npm run stats

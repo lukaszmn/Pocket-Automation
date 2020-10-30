@@ -5,16 +5,26 @@ const open = require('open');
 const clipboardy = require('clipboardy');
 const fs = require('fs').promises;
 
-const ITEMS_AT_ONCE = 10;
-const SKIP_TAGS = ['read-tel'];
+const DEFAULT_ITEMS_AT_ONCE = 10;
 const KB_PATH = 'kb.txt';
 
-async function readPocket(pocket, app) {
+/**
+ * @param {object} pocket Pocket object
+ * @param {object} options Options
+ * @param {number} options.batch Batch size
+ * @param {string[]} options.skipTags List of tags that should be skipped
+ * @param {object} app Browser
+ * @param {string | string[]} app.app Path to exe and (in second array's element) its arguments
+ */
+async function readPocket(pocket, options, app) {
+	options.batch = options.batch || DEFAULT_ITEMS_AT_ONCE;
+	options.skipTags = options.skipTags || [];
+
 	const list = [];
 	let offset = 0;
-	while (list.length < ITEMS_AT_ONCE) {
+	while (list.length < options.batch) {
 		const rawPartialList = await loadPocket(pocket, {
-			count: ITEMS_AT_ONCE,
+			count: options.batch,
 			offset,
 			getUnread: true,
 			getArchived: false,
@@ -26,18 +36,18 @@ async function readPocket(pocket, app) {
 
 		const cleanedPartialList = rawPartialList.map(convertItem)
 			.filter(item => item.active)
-			.filter(item => !SKIP_TAGS.some(tag => item.tagsArr.includes(tag)));
+			.filter(item => !options.skipTags.some(tag => item.tagsArr.includes(tag)));
 
-		const remainingCount = Math.min(cleanedPartialList.length, ITEMS_AT_ONCE - list.length);
+		const remainingCount = Math.min(cleanedPartialList.length, options.batch - list.length);
 		const remainingItems = cleanedPartialList.slice(0, remainingCount);
 		list.push(...remainingItems);
-		offset += ITEMS_AT_ONCE;
+		offset += options.batch;
 	}
 
-	if (list.length === ITEMS_AT_ONCE)
-		console.log(`Processing the first ${ITEMS_AT_ONCE} items.`);
+	if (list.length === options.batch)
+		console.log(`Processing the first ${options.batch} items.`);
 	else
-		console.log(`Processing the final ${list.length} items (requested ${ITEMS_AT_ONCE}).`);
+		console.log(`Processing the final ${list.length} items (requested ${options.batch}).`);
 
 	let index = 0;
 	let continue_ = true;
@@ -87,6 +97,7 @@ ${chalk.yellow(item.tags)}
 		type: 'expand',
 		name: 'choice',
 		message: 'Action',
+		pageSize: 9,
 		choices: [
 			{name: Action.CopyUrl, key: 'c'},
 			{name: Action.Open, key: 'o'},
