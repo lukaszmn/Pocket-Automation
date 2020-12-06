@@ -68,7 +68,7 @@ function printDateStats(list) {
 		);
 	}
 
-	const dateFrom = list[0].date_added; 
+	const dateFrom = list[0].date_added;
 	const dateTo = list[list.length - 1].date_updated;
 	console.log('Date range: ' +
 		dateFrom.toISOString().substring(0, 10) + ' - ' +
@@ -81,14 +81,14 @@ function printDateStats(list) {
 	const monthTo = dateTo.getMonth() + 1;
 
 	let year = yearFrom, month = monthFrom;
-	while (year < yearTo || month <= monthTo) {
+	while (year < yearTo || (year === yearTo && month <= monthTo)) {
 		printMonthStats(year, month);
 		if (++month > 12) {
 			month = 1;
 			++year;
 		}
 	}
-    
+
 }
 
 
