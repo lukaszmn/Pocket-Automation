@@ -51,11 +51,18 @@ async function readPocket(pocket, options, app) {
 
 	let index = 0;
 	let continue_ = true;
+	let command = undefined;
 	while (continue_) {
 		const item = list[index];
 		const itemNumber = `${index + 1} / ${list.length}`;
 		const action = await showItem(item, itemNumber);
-		[ continue_, index ] = await process({action, item, index, length: list.length, app, pocket});
+		[ continue_, index, command ] = await process({action, item, index, length: list.length, app, pocket});
+	}
+
+	switch (command) {
+		case Action.Search:
+			// TODO
+			break;
 	}
 }
 
@@ -107,6 +114,7 @@ ${chalk.yellow(item.tags)}
 			{name: Action.Archive, key: 'a'},
 			new inquirer.Separator(),
 			{name: Action.Skip, key: 's'},
+			{name: Action.Search, key: '/'},
 			{name: Action.Quit, key: 'q'},
 		],
 	}]);
@@ -141,11 +149,15 @@ async function process({action, item, index, length, app, pocket}) {
 			name: 'tags',
 			message: 'Provide KB tags:',
 		}]);
+		if (answer.tags.trim().length === 0) {
+			console.log('! Skipping adding the entry to the "kb.txt" file.');
+			return;
+		}
 		const s = `${answer.tags}\r\n\t${item.url}\r\n\r\n`;
 		await fs.appendFile(KB_PATH, s, 'utf-8');
 		console.log('The entry was added to the clipboard and to the "kb.txt" file.');
 		await clipboardy.write(s);
-	}
+	};
 
 	switch (action) {
 		case Action.Archive:
@@ -177,10 +189,13 @@ async function process({action, item, index, length, app, pocket}) {
 			return next();
 
 		case Action.Quit:
-			return [ false, index ];
+			return [ false ];
 
 		case Action.Skip:
 			return next();
+
+		case Action.Search:
+			return [ false, undefined, Action.Search ];
 	}
 }
 
@@ -192,6 +207,7 @@ const Action = {
 	OpenKBArchive: 'Open, KB & Archive',
 	Archive: 'Archive',
 	Skip: 'Skip',
+	Search: 'Search',
 	Quit: 'Quit',
 };
 
