@@ -5,7 +5,9 @@
 
 # Installation
 
-1. Go to [Pocket Developer](https://getpocket.com/developer/apps/) and create a new application. Select required permissions (Retrieve required, Modify required only if you want to archive items via API)
+1. Install NodeJS: https://nodejs.org/
+1. Run: `npm install`.
+1. Go to [Pocket Developer](https://getpocket.com/developer/apps/new) and create a new application. Select required permissions ("Retrieve" is required, "Modify" is required only if you want to archive items).
 1. Run `node .\node_modules\node-getpocket\authorise.js --consumerkey "your key"`
 1. Open the [address visible](http://127.0.0.1:8080) in the command line. Authorise with Pocket and copy the access token.
 1. Create `pocket.json` file:

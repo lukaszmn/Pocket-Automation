@@ -1,25 +1,11 @@
 const arg = require('arg');
+const fs = require('fs');
 const GetPocket = require('node-getpocket');
 
 const { printStats } = require('./stats');
 const { readPocket } = require('./read');
 
-const config = require('./pocket.json');
-
-
-/* authorization:
-npm i express
-npm i stdio
-node .\node_modules\node-getpocket\authorise.js --consumerkey ...
-
-DOCS: https://github.com/vicchi/node-getpocket
-
-Add pocket.json file:
-{
-	"consumer_key": "YOUR KEY",
-	"access_token": "YOUR TOKEN"
-}
-*/
+const { auth } = require('./auth');
 
 const args = arg({
 	'--stats': Boolean,
@@ -28,14 +14,18 @@ const args = arg({
 	'--arg': String,
 	'--batch': Number,
 	'--skip-tag': [String],
+	'--auth': Boolean,
 });
-
-const pocket = new GetPocket(config);
 
 console.log();
 
-if (args['--stats']) {
+if (args['--auth']) {
 
+	auth();
+
+} else if (args['--stats']) {
+
+	const pocket = getPocket();
 	printStats(pocket);
 
 } else if (args['--read']) {
@@ -53,17 +43,35 @@ if (args['--stats']) {
 		skipTags: args['--skip-tag'],
 	};
 
+	const pocket = getPocket();
 	readPocket(pocket, options, app);
 
 } else {
-	console.log(`Usage:
-	npm run stats
-	npm run read [--app="chrome" [--arg=" --incognito"]]
+	console.log(`Pocket Reader. Arguments:
 
-Alternatively:
-	node index.js --stats
+Authorize with Pocket:
+	--auth
 
-Note: add a space inside --arg, otherwise it may be parsed as another argument.
-Complex example:
-node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User\` Data\"`);
+Show your Pocket statistics:
+	--stats
+
+Read your latest Pocket articles:
+	--read
+Options:
+	--app <PATH TO WEB BROWSER> [--arg <BROWSER COMMAND-LINE ARGUMENTS]
+	--batch <HOW MANY ARTICLES TO READ>
+	--skip-tag <TAG TO SKIP> --skip-tag <ANOTHER TAG TO SKIP>
+
+Note: add a space inside --arg, otherwise it may be parsed as another argument. For example:
+	node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User\` Data\"
+`);
+}
+
+function getPocket() {
+	if (!fs.existsSync('pocket.json')) {
+		console.log('Please authorize first by running: pocket-reader --auth');
+		process.exit();
+	}
+	const config = require('pocket.json');
+	return new GetPocket(config);
 }

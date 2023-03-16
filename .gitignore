@@ -1,2 +1,5 @@
-node_modules
+node_modules/
+dist/
 pocket.json
+read.bat
+kb.txt
