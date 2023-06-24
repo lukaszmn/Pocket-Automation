@@ -47,23 +47,27 @@ if (args['--auth']) {
 	readPocket(pocket, options, app);
 
 } else {
-	console.log(`Pocket Reader. Arguments:
+	console.log(`Pocket Reader.
+Copyright (C) 2020 Łukasz Nojek @ ITLN
+Web site: https://itln.pl/en/software/pocket-automation
+
+Options:
 
 Authorize with Pocket:
-	--auth
+  --auth
 
 Show your Pocket statistics:
-	--stats
+  --stats
 
 Read your latest Pocket articles:
-	--read
+  --read
 Options:
-	--app <PATH TO WEB BROWSER> [--arg <BROWSER COMMAND-LINE ARGUMENTS]
-	--batch <HOW MANY ARTICLES TO READ>
-	--skip-tag <TAG TO SKIP> --skip-tag <ANOTHER TAG TO SKIP>
+  --app <PATH TO WEB BROWSER> [--arg <BROWSER COMMAND-LINE ARGUMENTS]
+  --batch <HOW MANY ARTICLES TO READ>
+  --skip-tag <TAG TO SKIP> --skip-tag <ANOTHER TAG TO SKIP>
 
 Note: add a space inside --arg, otherwise it may be parsed as another argument. For example:
-	node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User\` Data\"
+  node index.js --read --app \"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe\" --arg \" --user-data-dir=P:\\Chrome\\User\` Data\"
 `);
 }
 
@@ -72,6 +76,6 @@ function getPocket() {
 		console.log('Please authorize first by running: pocket-reader --auth');
 		process.exit();
 	}
-	const config = require('pocket.json');
+	const config = require('./pocket.json');
 	return new GetPocket(config);
 }

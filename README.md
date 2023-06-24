@@ -5,8 +5,28 @@
 
 # Installation
 
+Option 1:
+
+Download binaries from https://itln.pl/en/software/pocket-automation.
+
+From now on, the binary file will be called `pocket-reader`.
+
+Option 2: download source code and build the application.
+
 1. Install NodeJS: https://nodejs.org/
 1. Run: `npm install`.
+
+## Authorization
+
+You need to authorize with Pocket before you will be able to use the application.
+
+Option 1:
+
+Run `pocket-reader --auth` (if you downloaded binaries), or
+run `node index.js --auth` (if you run from source code).
+
+Option 2:
+
 1. Go to [Pocket Developer](https://getpocket.com/developer/apps/new) and create a new application. Select required permissions ("Retrieve" is required, "Modify" is required only if you want to archive items).
 1. Run `node .\node_modules\node-getpocket\authorise.js --consumerkey "your key"`
 1. Open the [address visible](http://127.0.0.1:8080) in the command line. Authorise with Pocket and copy the access token.
@@ -18,11 +38,13 @@
 }
 ```
 
-# Running
+# Command line options
 
 ## Statistics
 
 ```
+pocket-reader --stats
+- or -
 node index.js --stats
 - or -
 npm run stats
@@ -60,6 +82,8 @@ At the end there is summary:
 ## Reading
 
 ```
+pocket-reader --read
+- or -
 node index.js --read
 - or -
 npm run stats

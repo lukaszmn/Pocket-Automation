@@ -7,12 +7,12 @@
     "stats": "node index.js --stats",
     "read": "node index.js --read",
     "package": "npm run _package-win && npm run _package-macos && npm run _package-linux",
-    "_package-win": "pkg index.js --compress GZip -o dist/win/pocket-reader -t node16-win-x64",
-    "_package-macos": "pkg index.js --compress GZip -o dist/macos/pocket-reader -t node16-macos-x64",
-    "_package-linux": "copy node_modules\\open\\xdg-open dist\\xdg-open && pkg index.js --compress GZip -o dist/linux/pocket-reader -t node16-linux-x64"
+    "_package-win": "pkg index.js --compress GZip -o dist/win/pocket-reader-win-x64.exe -t node16-win-x64",
+    "_package-macos": "pkg index.js --compress GZip -o dist/macos/pocket-reader-macos -t node16-macos-x64",
+    "_package-linux": "copy node_modules\\open\\xdg-open dist\\xdg-open && pkg index.js --compress GZip -o dist/linux/pocket-reader-linux-x64 -t node16-linux-x64"
   },
   "author": "Lukasz Nojek",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "arg": "^4.1.3",
     "chalk": "^4.1.0",
