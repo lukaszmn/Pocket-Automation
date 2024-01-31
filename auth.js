@@ -116,7 +116,7 @@ function authorize(consumerKey) {
 		});
 
 		const server = app.listen(port, 'localhost', function() {
-			console.log('Open page: http://%s:%s', server.address().address, server.address().port);
+			console.log('Open page: http://localhost:%s', server.address().port);
 		});
 	});
 }
